@@ -6,7 +6,7 @@ This repository contains resources developed within the following paper:
 	Rahaman, M. S., Mei, Y., Hamilton, M., & Salim, F. D. (2017). CAPRA: A contour-based accessible path routing algorithm.  
 	Information Sciences, 385, 157-173.
 
-You can find the [paper](link) in this repository. 
+You can find the [paper](https://github.com/cruiseresearchgroup/CAPRA-Accessible-Path-Routing/blob/master/paper/rahaman2017capra.pdf) in this repository. 
 
 Alternative link: https://www.sciencedirect.com/science/article/pii/S0020025516322745
 

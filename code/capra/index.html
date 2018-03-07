@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+    <title>CAPRA</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/blog-post.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+     
+    <script src="https://www.google.com/jsapi"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyADWB-lvKkICS6jzKXoP-it10OWZI7Ce7w"></script>
+
+    <style>
+      body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+      
+      .scrollable-menu {
+		height: auto;
+		max-height: 150px;
+		overflow-x: hidden;
+      }
+    </style>
+    
+    <script src="js/myMaps.js"></script>
+    
+</head>
+
+<body>
+
+	<br>
+	
+    <!-- Page Content -->
+    <div class="container">
+
+        <div class="row">
+
+            <!-- Content Column -->
+            <div class="col-lg-8">
+
+                <!-- Map Content -->
+                <div id="map-canvas" style="border: 1px solid black; width:750px; height:420px"></div>
+
+                <hr>
+				
+				<ul class="nav nav-tabs">
+	                <li data-toggle="tab" class="dropdown active">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">MOA
+						    <span class="caret"></span>
+						</a>
+						<ul id="moa_paths" class="dropdown-menu scrollable-menu">
+						    
+						</ul>
+					</li>
+					<li data-toggle="tab"><a href="#" onclick="selectTab(-1)">Google</a></li>
+	            </ul>
+                
+                
+                <!-- Elevation Chart -->
+                <div id="elevation_chart"></div>
+
+            </div>
+
+            <!-- Sidebar Widgets Column -->
+            <div class="col-md-4">
+
+                <!-- Search Well -->
+                <div class="well">
+	                <form>
+	                	<div class="form-group">
+	                        <input id="origin" type="text" class="form-control" placeholder="Enter origin address">
+	                        <button class="btn btn-primary btn-xs pull-right" type="button" onclick="swap()">
+			                    <span class="glyphicon glyphicon-sort"></span>
+			                </button>
+			                <input id="destination" type="text" class="form-control" placeholder="Enter destination address">
+	                    </div>
+	                    
+	                    <div class="text">
+	                    	<select id="selected_area">
+		                    	<option>-- Select an area --</option>
+							    <option>Russian Hill, San Francisco - 5m</option>
+							    <option>Russian Hill, San Francisco - 10m</option>
+							    <option>Bukit Timah, Singapore - 5m</option>
+							    <option>Lisbon, Portugal - 5m</option>
+							    <option>Heidelberg, Victoria - 10m</option>
+							</select>
+							
+							<button class="btn btn-primary btn-sm pull-right" type="button" onclick="search()">
+			                    Search <span class="glyphicon glyphicon-search"></span>
+			                </button>
+	                    </div>
+	                </form>
+                    <!-- /.form-group -->
+                </div>
+                
+                <hr>
+
+                <!-- Display Mode -->
+                <div class="well well-sm">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <button id="show_paths" type="button" class="btn btn-primary btn-sm btn-block" 
+                            onclick="updateSolutions()" disabled>Path view</button>
+                        </div>
+                        <div class="col-lg-6">
+                            <button id="show_distribution" type="button" class="btn btn-primary btn-sm btn-block" 
+                            onclick="showDistribution()" disabled>Distribution view</button>
+                        </div>
+                    </div>
+                    <!-- /.row -->
+                </div>
+                
+                <hr>
+
+                <!-- Path Information -->
+                <div class="well well-sm">
+                    <ul class="nav nav-tabs">
+					    <li class="active"><a data-toggle="pill" href="#sample_data">Samples details</a></li>
+					    <li><a data-toggle="tab" href="#log_data">System logs</a></li>
+					</ul>
+					
+					<div class="tab-content">
+					    <div id="sample_data" class="tab-pane fade in active">
+					        <textarea class="form-control" rows="14" id="real_path_info"></textarea>
+					    </div>
+					    <div id="log_data" class="tab-pane fade">
+					        <textarea class="form-control" rows="14" id="system_log_info"></textarea> 
+					    </div>
+					</div>
+                </div>
+
+            </div>
+
+        </div>
+        <!-- /.row -->
+
+    </div>
+    <!-- /.container -->
+    
+    <script type="text/javascript">
+    	function swap() {
+    		var input_origin = document.getElementById("origin").value;
+            var input_destination = document.getElementById("destination").value;
+            
+            document.getElementById("origin").value = input_destination;
+            document.getElementById("destination").value = input_origin;
+    	}
+    
+        function search() {
+        	document.getElementById("show_paths").disabled = true;
+            document.getElementById("show_distribution").disabled = true;
+        	
+            var input_origin = document.getElementById("origin").value;
+            var input_destination = document.getElementById("destination").value;
+            var selectedIndex = document.getElementById("selected_area").selectedIndex;
+            
+            if (selectedIndex < 1) {
+            	alert("Select an area");
+            	return;
+            }
+            
+            setOriginAndDestination(input_origin, input_destination);
+            
+            var response = run(selectedIndex);
+            if (response == "true") {
+                updateSolutions();
+            }
+            
+            document.getElementById("show_paths").disabled = false;
+            document.getElementById("show_distribution").disabled = false;
+            
+            displaySystemInfomation();
+            
+            var moaSize = getMoaSize();
+            var html = ""; 
+            for (var i = 0; i < moaSize; i++) {
+            	var color = "#000000";
+            	if (i < 8) {
+            		color = getColor(i);
+            	}
+            	var html = html.concat('<li><a href="#" style="color:' + color + '" onclick="selectTab(' + i + ')">Path ' + i + '</a></li>');
+            	
+            	console.log(html);
+            }
+            document.getElementById("moa_paths").innerHTML = html;
+            
+        }
+    </script>
+
+</body>
+
+</html>

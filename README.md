@@ -22,6 +22,8 @@ The repository is structured as follows:
 - `data/`: Dataset used for this paper. 
 - `paper/`: Formal description of the algorithm and evaluation result. 
 
+## Possible Applications
+
 ## Citation
 If you use the resources presented in this repository, please cite (using the following BibTeX entry):
 ```
